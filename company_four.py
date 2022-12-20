@@ -1,26 +1,19 @@
-import itertools
 import camelot
 import file_manager_v101 as fm
 import pandas as pd
 from tkinter import mainloop
 import datetime
 import numpy as np
-
-now = datetime.datetime.now().strftime("%d-%m-%Y")
-
+import matplotlib
+from tools import grouper, new_file_path
+global coordinates
 
 def onclick(event):
     """ Appending the x,y coordinates to a list when clicked """
-    ix, iy = str(event.xdata), str(event.ydata)
-
     global coordinates
+    ix, iy = str(event.xdata), str(event.ydata)
     coordinates.extend((ix, iy))
 
-
-def grouper(iterable, n, fillvalue=0):
-    """ iterates and gives results with n times"""
-    it = [iter(iterable)] * n
-    return itertools.zip_longest(*it, fillvalue=fillvalue)
 
 
 # Increasing the width of table displayed
@@ -37,7 +30,7 @@ for number in range(1, page_count + 1):
                              flavor="stream"
                              )
     fig = camelot.plot(table[0], kind="text")
-    cid = fig.canvas.mpl_connect('button_press_event', onclick)
+    fig.canvas.mpl_connect('button_press_event', onclick)
     fig.show()
     mainloop()
 
@@ -66,19 +59,19 @@ no_of_rows = 0
 for pages in tables:
     page_df = pages[0].df
     page_df = page_df.replace(r'^\s*$', np.nan, regex=True)
-
+    striped_file_name = file_name.split(".")[0]
+    new_file_name = new_file_path(".xlsx", striped_file_name)
     # TODO EMPTY THE ORIGIN COLUMN AND MOVE THE REST ONE COLUMN TO THE RIGHT
     try:
-        striped_file_name = file_name.split(".")[0]
-        with pd.ExcelWriter(f"{striped_file_name} {now}.xlsx",
+
+        with pd.ExcelWriter(new_file_name,
                             mode="a",
                             engine="openpyxl",
                             if_sheet_exists="overlay") as writer:
             page_df.to_excel(writer, startrow=no_of_rows, index=False, header=False)
             no_of_rows += page_df[page_df.columns[1]].count()
     except FileNotFoundError:
-        striped_file_name = file_name.split(".")[0]
-        with pd.ExcelWriter(f"{striped_file_name} {now}.xlsx",
+        with pd.ExcelWriter(new_file_name,
                             mode="w",
                             engine="openpyxl",) as writer:
             page_df.to_excel(writer, index=False)

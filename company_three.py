@@ -5,29 +5,22 @@ import pandas as pd
 from tkinter import mainloop
 import re
 import datetime
-
-now = datetime.datetime.now().strftime("%d-%m-%Y")
-
+from tools import new_file_path
 
 def onclick(event):
     """ Appending the x,y coordinates to a list when clicked """
-    ix, iy = str(event.xdata), str(event.ydata)
-
     global coordinates
+    ix, iy = str(event.xdata), str(event.ydata)
     coordinates.extend((ix, iy))
-
 
 # Increasing the width of table displayed
 pd.set_option("display.width", 1000)
 pd.set_option('display.max_columns', 7)
 
-for file in fm.current_directory_files():
-    if file.endswith(".pdf"):
-        print(file)
-file_name = input("please enter the name of the pdf: ")
+file_name = fm.get_file_name(file_extension=".pdf")
 
 # reading through pages of the pdf, showing the user the table to specify table area
-table = camelot.read_pdf(f"{file_name}.pdf",
+table = camelot.read_pdf(f"{file_name}",
                          flavor='stream')
 fig = camelot.plot(table[0], kind='text')
 coordinates = []
@@ -37,7 +30,7 @@ mainloop()
 coordinates_of_table = ",".join(coordinates)
 # Creating Dataframe from the data read.
 no_of_rows = 0
-tables = camelot.read_pdf(f"{file_name}.pdf",
+tables = camelot.read_pdf(f"{file_name}",
                           flavor='stream',
                           table_areas=[coordinates_of_table],
                           pages="all",
@@ -114,15 +107,16 @@ for pages in tables:
             page_df.iloc[origin_cell] = page_df.iloc[origin_cell] + " " + page_df.iloc[cell]
     for cells in dislocated:
         page_df = page_df.drop(cells)
+        new_file_name = new_file_path(".xlsx",file_name)
     try:
-        with pd.ExcelWriter(f"{file_name} {now}.xlsx",
+        with pd.ExcelWriter(new_file_name,
                             mode="a",
                             engine="openpyxl",
                             if_sheet_exists="overlay") as writer:
             page_df.to_excel(writer, startrow=no_of_rows, index=False, header=False)
             no_of_rows += page_df[page_df.columns[1]].count()
     except FileNotFoundError:
-        with pd.ExcelWriter(f"{file_name} {now}.xlsx",
+        with pd.ExcelWriter(new_file_name,
                             mode="w",
                             engine="openpyxl",) as writer:
             page_df.to_excel(writer, index=False)

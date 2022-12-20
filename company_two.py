@@ -1,31 +1,25 @@
-# bismillahirrahmanirrahim
-# BELOW WORKS PERFECTLY TESTED WITH TWO DIFFERENT INVOICES
 import camelot
 import numpy as np
 import file_manager_v101 as fm
 import pandas as pd
 from tkinter import mainloop
 import datetime
-
-
-now = datetime.datetime.now().strftime("%d-%m-%Y")
-
+from tools import new_file_path
 
 def onclick(event):
     """ Appending the x,y coordinates to a list when clicked """
-    ix, iy = str(event.xdata), str(event.ydata)
-
     global coordinates
+    ix, iy = str(event.xdata), str(event.ydata)
     coordinates.extend((ix, iy))
-
 
 # Increasing the width of table displayed
 pd.set_option("display.width", 1000)
 pd.set_option('display.max_columns', 11)
 
-file_name = fm.get_file_name()
+file_name = "INV148603.PDF"
 
 # reading through pages of the pdf, showing the user the table to specify table area
+print(file_name)
 table = camelot.read_pdf(f"{file_name}",
                          flavor='stream')
 fig = camelot.plot(table[0], kind='text')
@@ -85,16 +79,16 @@ for pages in tables:
             searched_pat = page_df[1].str.contains(product_brands_codes[brand], case=False, na=False)
             brand_name = product_brands[brand]
             page_df["brand_names"].mask(searched_pat, brand_name, inplace=True)
-
+    new_file_name = new_file_path(".xlsx", file_name)
     try:
-        with pd.ExcelWriter(f"{file_name} {now}.xlsx",
+        with pd.ExcelWriter(new_file_name,
                             mode="a",
                             engine="openpyxl",
                             if_sheet_exists="overlay") as writer:
             page_df.to_excel(writer, startrow=no_of_rows, index=False, header=False)
             no_of_rows += page_df[page_df.columns[1]].count()
     except FileNotFoundError:
-        with pd.ExcelWriter(f"{file_name} {now}.xlsx",
+        with pd.ExcelWriter(new_file_name,
                             mode="w",
                             engine="openpyxl", ) as writer:
             page_df.to_excel(writer, index=False)
