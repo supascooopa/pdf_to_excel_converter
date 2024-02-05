@@ -3,7 +3,7 @@ import numpy as np
 import file_manager_v101 as fm
 import pandas as pd
 from tkinter import mainloop
-import datetime
+
 from tools import new_file_path
 
 def onclick(event):
@@ -16,7 +16,7 @@ def onclick(event):
 pd.set_option("display.width", 1000)
 pd.set_option('display.max_columns', 11)
 
-file_name = "INV148603.PDF"
+file_name = fm.get_file_name(file_extension=".pdf")
 
 # reading through pages of the pdf, showing the user the table to specify table area
 print(file_name)

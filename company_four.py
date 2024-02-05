@@ -2,11 +2,10 @@ import camelot
 import file_manager_v101 as fm
 import pandas as pd
 from tkinter import mainloop
-import datetime
 import numpy as np
-import matplotlib
 from tools import grouper, new_file_path
 global coordinates
+
 
 def onclick(event):
     """ Appending the x,y coordinates to a list when clicked """
@@ -48,11 +47,13 @@ for coor in grouped:
 tables = []
 pages = 1
 for coordinates in joined_coordinates:
-    table = camelot.read_pdf(f"{file_name}",
-                              flavor='stream',
-                              table_areas=[coordinates],
-                              pages=str(pages),
-                              strip_text="\n")
+    table = camelot.read_pdf(
+        f"{file_name}",
+        flavor='stream',
+        table_areas=[coordinates],
+        pages=str(pages),
+        strip_text="\n"
+    )
     tables.append(table)
     pages += 1
 no_of_rows = 0
@@ -62,6 +63,8 @@ for pages in tables:
     striped_file_name = file_name.split(".")[0]
     new_file_name = new_file_path(".xlsx", striped_file_name)
     # TODO EMPTY THE ORIGIN COLUMN AND MOVE THE REST ONE COLUMN TO THE RIGHT
+    # TODO SHIFT FIRST COLUMN OF SECOND PAGE OF PRICE LIST TO LEFT
+    # IF COLUMN NAME IS NaN AND THE ONE TO THE RIGHT OF IT IS SAMSUNG THEN SHIFT THAT COLUMN TO THE RIGHT AND GET RID OF THE RIGHT COLUMN
     try:
 
         with pd.ExcelWriter(new_file_name,
@@ -69,7 +72,7 @@ for pages in tables:
                             engine="openpyxl",
                             if_sheet_exists="overlay") as writer:
             page_df.to_excel(writer, startrow=no_of_rows, index=False, header=False)
-            no_of_rows += page_df[page_df.columns[1]].count()
+            no_of_rows += page_df[page_df.columns[1]].count() + 1
     except FileNotFoundError:
         with pd.ExcelWriter(new_file_name,
                             mode="w",

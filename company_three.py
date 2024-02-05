@@ -1,10 +1,8 @@
-# bismillahirrahmanirrahim
 import camelot
 import file_manager_v101 as fm
 import pandas as pd
 from tkinter import mainloop
 import re
-import datetime
 from tools import new_file_path
 
 def onclick(event):
@@ -74,7 +72,7 @@ for pages in tables:
             if row["Sl No."] == "":
                 # adds them to a list
                 missing.append(index)
-                # if its the last index and has no "SL no." add to the last
+                # if it's the last index and has no "SL no." add to the last
                 if index == page_df.index[-1]:
                     dislocated.append(missing)
             else:
@@ -107,7 +105,7 @@ for pages in tables:
             page_df.iloc[origin_cell] = page_df.iloc[origin_cell] + " " + page_df.iloc[cell]
     for cells in dislocated:
         page_df = page_df.drop(cells)
-        new_file_name = new_file_path(".xlsx",file_name)
+    new_file_name = new_file_path(".xlsx", file_name)
     try:
         with pd.ExcelWriter(new_file_name,
                             mode="a",

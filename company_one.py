@@ -1,10 +1,7 @@
-# bismillahirrahmanirrahim
 import camelot
-import numpy as np
 import file_manager_v101 as fm
 import pandas as pd
 from tkinter import mainloop
-import datetime
 from tools import new_file_path
 
 def onclick(event):
